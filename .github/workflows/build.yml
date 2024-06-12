@@ -16,28 +16,28 @@ jobs:
           fi
       shell: bash
     - name: fetch libplist
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         workflow: build.yml
         name: libplist-latest_macOS
         repo: LukeeGD/libplist
     - name: fetch libusbmuxd
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         workflow: build.yml
         name: libusbmuxd-latest_macOS
         repo: LukeeGD/libusbmuxd
     - name: fetch libimobiledevice-glue
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         workflow: build.yml
         name: libimobiledevice-glue-latest_macOS
         repo: LukeeGD/libimobiledevice-glue
     - name: fetch libimobiledevice
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         workflow: build.yml
@@ -50,7 +50,7 @@ jobs:
             tar -C extract -xvf $I
           done
           sudo cp -r extract/* /
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: install additional requirements
       run: |
           SDKDIR=`xcrun --sdk macosx --show-sdk-path 2>/dev/null`
@@ -82,7 +82,7 @@ jobs:
           base64 -D < $FILENAME.b64 > $FILENAME
           tar -C deps -xjf $FILENAME
           echo "LIBZIP_CFLAGS=-I`pwd`/deps/include" >> $GITHUB_ENV
-          echo "LIBZIP_LIBS=`pwd`/deps/lib/libzip.a -Xlinker /usr/lib/libbz2.dylib -Xlinker /usr/lib/liblzma.dylib -lz" >> $GITHUB_ENV
+          echo "LIBZIP_LIBS=`pwd`/deps/lib/libzip.a -Xlinker ${SDKDIR}/usr/lib/libbz2.tbd -Xlinker ${SDKDIR}/usr/lib/liblzma.tbd -lz" >> $GITHUB_ENV
     - name: autogen
       run: |
           export CFLAGS="${{env.BUILD_CFLAGS}} -Wno-nullability-completeness -Wno-expansion-to-defined"
@@ -101,7 +101,7 @@ jobs:
           DESTDIR=`pwd`/dest make install
           tar -C dest -cf ideviceinstaller.tar usr
     - name: publish artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ideviceinstaller-latest_macOS
         path: ideviceinstaller.tar
